@@ -259,3 +259,8 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/Presentation/Nop.Web/wwwroot/images/thumbs
+/Presentation/Nop.Web/App_Data/installedPlugins.json
+/Presentation/Nop.Web/App_Data/dataSettings.json
+/Presentation/Nop.Web/App_Data/DataProtectionKeys/key-676d27b8-92c4-408a-8233-65450df41d70.xml
+/Presentation/Nop.Web/App_Data/DataProtectionKeys
