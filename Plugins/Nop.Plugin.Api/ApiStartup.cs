@@ -1,7 +1,4 @@
-﻿using Nop.Plugin.Api.Data;
-using Nop.Web.Framework.Infrastructure.Extensions;
-
-namespace Nop.Plugin.Api
+﻿namespace Nop.Plugin.Api
 {
     using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.EntityFramework.Entities;
@@ -22,6 +19,7 @@ namespace Nop.Plugin.Api
     using Nop.Plugin.Api.Authorization.Requirements;
     using Nop.Plugin.Api.Constants;
     using Nop.Plugin.Api.Helpers;
+    using Nop.Plugin.Api.IdentityServer;
     using Nop.Plugin.Api.IdentityServer.Endpoints;
     using Nop.Plugin.Api.IdentityServer.Generators;
     using Nop.Plugin.Api.IdentityServer.Middlewares;
@@ -35,6 +33,11 @@ namespace Nop.Plugin.Api
     using System.Linq.Dynamic.Core;
     using System.Reflection;
     using ApiResource = IdentityServer4.EntityFramework.Entities.ApiResource;
+    using Nop.Plugin.Api.Data;
+    using Nop.Web.Framework.Infrastructure.Extensions;
+    using Nop.Services.Customers;
+    using IdentityServer4.Stores;
+    using IdentityServer4;
 
     public class ApiStartup : INopStartup
     {
@@ -43,10 +46,12 @@ namespace Nop.Plugin.Api
         // TODO: extract all methods into extensions.
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<ApiObjectContext>(optionsBuilder =>
-            {
-                optionsBuilder.UseSqlServerWithLazyLoading(services);
-            });
+            services.AddMvc();
+
+            //services.AddDbContext<ApiObjectContext>(optionsBuilder =>
+            //{
+            //    optionsBuilder.UseSqlServerWithLazyLoading(services);
+            //});
 
             AddRequiredConfiguration();
 
@@ -85,9 +90,9 @@ namespace Nop.Plugin.Api
 
             //TODO: IDP
             // This needs to be called here because in the plugin install method identity server is not yet registered.
-            ApplyIdentityServerMigrations(app);
+            //ApplyIdentityServerMigrations(app);
             //TODO: IDP
-            SeedData(app);
+            //SeedData(app);
 
 
             var rewriteOptions = new RewriteOptions()
@@ -108,6 +113,9 @@ namespace Nop.Plugin.Api
                 context.Request.EnableBuffering();
                 await next();
             });
+
+            app.UseStaticFiles();
+            app.UseMvc();
         }
 
         private void UseIdentityServer(IApplicationBuilder app)
@@ -181,22 +189,44 @@ namespace Nop.Plugin.Api
 
             services.AddIdentityServer()
                 .AddSigningCredential(signingKey)
-                .AddConfigurationStore(options =>
-                {
-                    options.ConfigureDbContext = builder =>
-                        builder.UseSqlServer(connectionStringFromNop,
-                            sql => sql.MigrationsAssembly(migrationsAssembly));
-                })
-                .AddOperationalStore(options =>
-                {
-                    options.ConfigureDbContext = builder =>
-                        builder.UseSqlServer(connectionStringFromNop,
-                            sql => sql.MigrationsAssembly(migrationsAssembly));
-                })
+                .AddInMemoryClients(ConfigureIdentityServer.GetClients())
+                .AddInMemoryIdentityResources(ConfigureIdentityServer.GetIdentityResources())
+                .AddProfileService<UserProfileService>()
+                //.AddConfigurationStore(options =>
+                //{
+                //    options.ConfigureDbContext = builder =>
+                //        builder.UseSqlServer(connectionStringFromNop,
+                //            sql => sql.MigrationsAssembly(migrationsAssembly));
+                //})
+                //.AddOperationalStore(options =>
+                //{
+                //    options.ConfigureDbContext = builder =>
+                //        builder.UseSqlServer(connectionStringFromNop,
+                //            sql => sql.MigrationsAssembly(migrationsAssembly));
+                //})
                 .AddAuthorizeInteractionResponseGenerator<NopApiAuthorizeInteractionResponseGenerator>()
                 .AddEndpoint<AuthorizeCallbackEndpoint>("Authorize", "/oauth/authorize/callback")
                 .AddEndpoint<AuthorizeEndpoint>("Authorize", "/oauth/authorize")
                 .AddEndpoint<TokenEndpoint>("Token", "/oauth/token");
+
+            services.AddSingleton<ICustomerService, CustomerService>();
+            services.AddSingleton<ICustomerRegistrationService, CustomerRegistrationService>();
+
+            services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
+
+            services.AddAuthentication()
+                .AddGoogle("Google", options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    options.ClientId = "434483408261-55tc8n0cs4ff1fe21ea8df2o443v2iuc.apps.googleusercontent.com";
+                    options.ClientSecret = "3gcoTrEDPPJ0ukn_aYYT6PWo";
+                })
+                .AddFacebook("Facebook", options =>
+                {
+                    options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+                    options.ClientId = "";
+                    options.ClientSecret = "";
+                });
         }
 
         private void ApplyIdentityServerMigrations(IApplicationBuilder app)
@@ -226,7 +256,7 @@ namespace Nop.Plugin.Api
                         Enabled = true,
                         Scopes = new List<ApiScope>()
                         {
-                            new ApiScope() 
+                            new ApiScope()
                             {
                                 Name = "nop_api",
                                 DisplayName = "nop_api"
