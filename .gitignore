@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/Presentation/Nop.Web/App_Data
+/Presentation/Nop.Web/Plugins
+/Presentation/Nop.Web/wwwroot/images/thumbs
