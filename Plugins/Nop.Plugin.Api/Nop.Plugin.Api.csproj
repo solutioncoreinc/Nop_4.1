@@ -21,6 +21,7 @@
   <ItemGroup>
     <None Remove="logo.jpg" />
     <None Remove="plugin.json" />
+    <None Remove="Views\Account\Login.cshtml" />
     <None Remove="Views\Clients\ClientSettings.cshtml" />
     <None Remove="Views\Clients\Create.cshtml" />
     <None Remove="Views\Clients\CreateOrUpdate.cshtml" />
@@ -35,6 +36,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="plugin.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Views\Account\Login.cshtml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Views\Clients\ClientSettings.cshtml">

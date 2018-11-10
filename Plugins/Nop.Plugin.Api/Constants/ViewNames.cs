@@ -9,5 +9,6 @@
         public const string AdminApiClientsCreate = "~/Plugins/Nop.Plugin.Api/Views/Clients/Create.cshtml";
         public const string AdminApiClientsEdit = "~/Plugins/Nop.Plugin.Api/Views/Clients/Edit.cshtml";
         public const string AdminLayout = "_AdminLayout";
+        public const string AccountLogin = "~/Plugins/Nop.Plugin.Api/Views/Account/Login.cshtml";
     }
 }

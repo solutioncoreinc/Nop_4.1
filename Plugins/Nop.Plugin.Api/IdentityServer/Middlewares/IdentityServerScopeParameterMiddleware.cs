@@ -34,7 +34,7 @@
                         if (!scopeValue.Contains("nop_api offline_access"))
                         {
                             // add our scope instead since we don't support other scopes
-                            queryValues.Add(item.Key, "nop_api offline_access");
+                            queryValues.Add(item.Key, "openid profile email nopapi offline_access");
                             continue;
                         }
                     }
@@ -45,7 +45,7 @@
                 if (!queryValues.ContainsKey("scope"))
                 {
                     // if no scope is specified we add it
-                    queryValues.Add("scope", "nop_api offline_access");
+                    queryValues.Add("scope", "openid profile email nopapi offline_access");
                 }
 
                 var newQueryCollection = new QueryCollection(queryValues);
