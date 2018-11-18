@@ -11,7 +11,7 @@ namespace Nop.Plugin.Api.Controllers.Account
         public static TimeSpan RememberMeLoginDuration = TimeSpan.FromDays(30);
 
         public static bool ShowLogoutPrompt = true;
-        public static bool AutomaticRedirectAfterSignOut = false;
+        public static bool AutomaticRedirectAfterSignOut = true;
 
         //TODO: Remove Windows Authentication
         // to enable windows authentication, the host (IIS or IIS Express) also must have 

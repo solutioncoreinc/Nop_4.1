@@ -43,7 +43,7 @@
         [HttpGet]
         public async Task<IActionResult> Login(string returnUrl)
         {
-            var vm = await _account.BuildLoginViewModelAsync("http://localhost:15536/account/login");
+            var vm = await _account.BuildLoginViewModelAsync(returnUrl);
             return View(ViewNames.AccountLogin, vm);
         }
 
@@ -113,7 +113,7 @@
 
             // something went wrong, show form with error
             var vm = await _account.BuildLoginViewModelAsync(model);
-            return View(vm);
+            return View(ViewNames.AccountLogin, vm);
         }
 
         [HttpGet]
@@ -131,6 +131,41 @@
             // start challenge and roundtrip the return URL
             props.Items.Add("scheme", provider);
             return Challenge(props, provider);
+        }
+
+        /// <summary>
+        /// Handle logout page postback
+        /// </summary>
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout(LogoutInputModel model)
+        {
+            // build a model so the logged out page knows what to display
+            var vm = await _account.BuildLoggedOutViewModelAsync(model.LogoutId);
+
+            var user = HttpContext.User;
+            if (user?.Identity.IsAuthenticated == true)
+            {
+                // delete local authentication cookie
+                await HttpContext.SignOutAsync();
+
+                // raise the logout event
+                await _events.RaiseAsync(new UserLogoutSuccessEvent(user.Identity.Name, user.Identity.Name));
+            }
+
+            // check if we need to trigger sign-out at an upstream identity provider
+            if (vm.TriggerExternalSignout)
+            {
+                // build a return URL so the upstream provider will redirect back
+                // to us after the user has logged out. this allows us to then
+                // complete our single sign-out processing.
+                string url = Url.Action("Logout", new { logoutId = vm.LogoutId });
+
+                // this triggers a redirect to the external provider for sign-out
+                return SignOut(new AuthenticationProperties { RedirectUri = url }, vm.ExternalAuthenticationScheme);
+            }
+
+            return Redirect(model.ReturnUrl);
         }
     }
 }

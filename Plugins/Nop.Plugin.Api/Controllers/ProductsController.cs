@@ -31,8 +31,10 @@ namespace Nop.Plugin.Api.Controllers
     using Microsoft.AspNetCore.Mvc;
     using DTOs.Errors;
     using JSON.Serializers;
+    using Microsoft.AspNetCore.Authorization;
 
-    [ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [AllowAnonymous]
+    //[ApiAuthorize(Policy = JwtBearerDefaults.AuthenticationScheme, AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProductsController : BaseApiController
     {
         private readonly IProductApiService _productApiService;

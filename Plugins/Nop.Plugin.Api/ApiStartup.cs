@@ -103,7 +103,7 @@ namespace Nop.Plugin.Api
 
             //app.Validate();
             UseMiddlewareExtensions.UseMiddleware<BaseUrlMiddleware>(app);
-            //app.ConfigureCors();
+            app.ConfigureCors();
             //app.UseAuthentication();
             UseMiddlewareExtensions.UseMiddleware<IdentityServerMiddleware>(app);
         }
@@ -161,16 +161,11 @@ namespace Nop.Plugin.Api
             string connectionStringFromNop = dataSettings.DataConnectionString;
 
             services.AddIdentityServer()
-                //.AddSigningCredential(signingKey)
-                .AddDeveloperSigningCredential()
+                .AddSigningCredential(signingKey)
                 .AddInMemoryClients(ConfigureIdentityServer.GetClients())
                 .AddInMemoryIdentityResources(ConfigureIdentityServer.GetIdentityResources())
                 .AddInMemoryApiResources(ConfigureIdentityServer.GetApiResources())
                 .AddProfileService<UserProfileService>();
-
-            //services.AddSingleton<ICustomerRegistrationService, CustomerRegistrationService>();
-
-            //services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
 
             services.AddAuthentication()
                 .AddGoogle("Google", options =>

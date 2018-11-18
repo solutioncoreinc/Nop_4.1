@@ -20,24 +20,33 @@ namespace Nop.Plugin.Api.IdentityServer
             _customerService = customerService;
         }
 
-        public virtual async Task GetProfileDataAsync(ProfileDataRequestContext context)
+        public virtual Task GetProfileDataAsync(ProfileDataRequestContext context)
         {
             if (context.RequestedClaimTypes.Any())
             {
                 var user = _customerService.GetCustomerByUsername(context.Subject.GetSubjectId());
+
                 if (user != null)
                 {
-                    context.AddRequestedClaims(new List<Claim> { new Claim("email", user.Email), new Claim("api", "nopapi") });
+                    context.AddRequestedClaims(
+                        new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Email, user.Email),
+                            new Claim(ClaimTypes.Name, user.Username),
+                            new Claim("api", "nopapi")
+                        });
                 }
             }
-            return;
+
+            return Task.CompletedTask;
         }
 
-        public virtual async Task IsActiveAsync(IsActiveContext context)
+        public virtual Task IsActiveAsync(IsActiveContext context)
         {
             var user = _customerService.GetCustomerByUsername(context.Subject.GetSubjectId());
-            context.IsActive = user.Active; // TODO check indicators like account status 
-            return;
+            context.IsActive = user.Active;
+
+            return Task.CompletedTask;
         }
     }
 }

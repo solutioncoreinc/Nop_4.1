@@ -1,5 +1,6 @@
 ﻿using IdentityServer4;
 using IdentityServer4.Models;
+using Nop.Plugin.Api.Constants;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,13 +39,13 @@ namespace Nop.Plugin.Api.IdentityServer
                     ClientName = "NopAndroid",
                     AllowedGrantTypes = GrantTypes.Hybrid,
                     ClientSecrets = {
-                        new Secret("secret".Sha256())
+                        new Secret("secret")
                     },
                     RedirectUris = { "xamarinformsclients://callback"}, // after login
                     RequireConsent = false,
                     RequirePkce = true,
-                    PostLogoutRedirectUris = { "http://localhost:56134/signout-callback-oidc"}, // after logout
-                    AllowedCorsOrigins = { "http://localhost:56134" },
+                    PostLogoutRedirectUris = { Configurations.NopBaseUrl + "/signout-callback-oidc" }, // after logout
+                    AllowedCorsOrigins = { "*" },
                     AllowedScopes = new List<string>
                     {
                         IdentityServerConstants.StandardScopes.OpenId,
@@ -53,7 +54,31 @@ namespace Nop.Plugin.Api.IdentityServer
                         "nopapi"
                     },
                     AllowOfflineAccess = true,
-                    AllowAccessTokensViaBrowser = true,                    
+                    AllowAccessTokensViaBrowser = true,
+                },
+
+                new Client
+                 {
+                    ClientId = "NopBrowser",
+                    ClientName = "NopBrowser",
+                    AllowedGrantTypes = GrantTypes.Hybrid,
+                    ClientSecrets = {
+                        new Secret("secret")
+                    },
+                    RedirectUris = { Configurations.NopBaseUrl + "/api/customers"}, //After login
+                    RequireConsent = false,
+                    RequirePkce = true,
+                    PostLogoutRedirectUris = { Configurations.NopBaseUrl + "/signout-callback-oidc" }, // after logout
+                    AllowedCorsOrigins = { "*" },
+                    AllowedScopes = new List<string>
+                    {
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        IdentityServerConstants.StandardScopes.Email,
+                        "nopapi"
+                    },
+                    AllowOfflineAccess = true,
+                    AllowAccessTokensViaBrowser = true,
                 }
             };
         }
